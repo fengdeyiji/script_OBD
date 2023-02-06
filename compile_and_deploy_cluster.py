@@ -24,8 +24,8 @@ parser.add_argument('--compile', default=None, choices=['debug', 'release'], typ
                     help='本次部署是否需要从源代码编译出一个新的binary，若需要重编译请填写编译模式')
 parser.add_argument('--tag', type=str, default='test',
                     help='生成的OBD镜像名称以及部署的集群名称。若为空则默认为test')
-parser.add_argument('--with_admin',  default=False, type=bool,
-                    help='编译ob_admin'),
+parser.add_argument('--with_admin',  default=False, action ='store_true',
+                    help='是否编译ob_admin'),
 parser.add_argument('--enable_oracle', default=False, action='store_true',
                     help='是否生成Oracle租户'),
 parser.add_argument('--memory_limit', type=str, default='8G',
