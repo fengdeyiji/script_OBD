@@ -55,8 +55,8 @@ for idx in range(len(args.deploy_ip_list)):
   ip_used_port[args.deploy_ip_list[idx]] += 2
 
 # 获取网卡名
-cmd = '''ifconfig | awk '{a[NR]=\$0}END{for(i = 0; i < length(a); i++){ if (index(a[i], \\"'''+args.deploy_ip_list[0] +'''\\")!=0) {print a[i-1]}}}' | awk '{match(\$0, /([a-zA-Z0-9]+)/, a); print a[1]}' '''
-cmd = '''ssh {} "{}"'''.format(args.deploy_ip_list[0], cmd)
+cmd = '''awk '{a[NR]=$0}END{for(i = 0; i < length(a); i++){ if (index(a[i], \"'''+args.deploy_ip_list[0] +'''\")!=0) {print a[i-1]}}}' | awk '{match($0, /([a-zA-Z0-9]+)/, a); print a[1]}' '''
+cmd = '''ssh {} "bash -c ifconfig" | {}'''.format(args.deploy_ip_list[0], cmd)
 devname = os.popen(cmd).read().strip()
 print('devname:{}'.format(devname))
 # 生成定制的yaml文件
