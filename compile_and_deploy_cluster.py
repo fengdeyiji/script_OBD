@@ -32,6 +32,8 @@ parser.add_argument('--memory_limit', type=str, default='8G',
                    help='单个observer的内存限制。若为空则默认为8G'),
 parser.add_argument('--cpu_count', type=str, default='4',
                    help='单个observer的CPU限制。若为空则默认为4'),
+parser.add_argument('--devname', type=str, default=None,
+                    help='部署服务器的网卡名称。若为空则将自动获取')
 
 
 args = parser.parse_args()
@@ -55,9 +57,12 @@ for idx in range(len(args.deploy_ip_list)):
   ip_used_port[args.deploy_ip_list[idx]] += 2
 
 # 获取网卡名
-cmd = '''awk '{a[NR]=$0}END{for(i = 0; i < length(a); i++){ if (index(a[i], \"'''+args.deploy_ip_list[0] +'''\")!=0) {print a[i-1]}}}' | awk '{match($0, /([a-zA-Z0-9]+)/, a); print a[1]}' '''
-cmd = '''ssh {} "bash -c ifconfig" | {}'''.format(args.deploy_ip_list[0], cmd)
-devname = os.popen(cmd).read().strip()
+if args.devname:
+  devname = args.devname
+else:
+  cmd = '''awk '{a[NR]=$0}END{for(i = 0; i < length(a); i++){ if (index(a[i], \"'''+args.deploy_ip_list[0] +'''\")!=0) {print a[i-1]}}}' | awk '{match($0, /([a-zA-Z0-9]+)/, a); print a[1]}' '''
+  cmd = '''ssh {} "bash -c /usr/sbin/ifconfig" | {}'''.format(args.deploy_ip_list[0], cmd)
+  devname = os.popen(cmd).read().strip()
 print('devname:{}'.format(devname))
 # 生成定制的yaml文件
 config_yaml = '''oceanbase-ce:
@@ -103,7 +108,7 @@ if args.compile:# 拷贝编译出来的二进制文件
 output = subprocess.Popen('./bin/observer -V', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 stdout, stderr = output.communicate()
 total = stdout.decode('ascii') + stderr.decode('ascii')
-version = re.search(r'OceanBase ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)', total, re.I).group(1)
+version = re.search(r'observer \(OceanBase (.*?)\)', total, re.I).group(1)
 assert_notice('rm -rf ~/.obd/repository/oceanbase-ce/*', 'delete old compiled binary in obd repo')
 assert_notice('obd mirror create -n oceanbase-ce -p {}/tools/deploy/ -V {} -t {} -f'.format(args.src_dir, version, args.tag), 'generate mirror done, tag:{}'.format(args.tag))# 打包OBD镜像
 os.chdir(work_dir)
