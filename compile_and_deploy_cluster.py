@@ -97,7 +97,7 @@ if args.compile:# 编译源代码
   if args.with_admin:
     assert_notice('ob-make -C ./build_{}/tools/ob_admin/'.format(args.compile), 'compile ob_admin done')
 os.chdir('./tools/deploy')
-assert_notice('./copy.sh -l', 'copy needed file done')
+assert_notice('./copy.sh', 'copy needed file done')
 if args.compile:# 拷贝编译出来的二进制文件
   assert_notice('cp ../../build_{}/src/observer/observer ./bin/'.format(args.compile), 'copy new binary done')
 output = subprocess.Popen('./bin/observer -V', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
