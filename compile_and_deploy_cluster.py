@@ -108,7 +108,7 @@ if args.compile:# 拷贝编译出来的二进制文件
 output = subprocess.Popen('./bin/observer -V', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 stdout, stderr = output.communicate()
 total = stdout.decode('ascii') + stderr.decode('ascii')
-version = re.search(r'observer \(OceanBase (.*?)\)', total, re.I).group(1)
+version = re.search(r'observer \(.*?(\d.*?)\)', total, re.I).group(1)
 assert_notice('rm -rf ~/.obd/repository/oceanbase-ce/*', 'delete old compiled binary in obd repo')
 assert_notice('obd mirror create -n oceanbase-ce -p {}/tools/deploy/ -V {} -t {} -f'.format(args.src_dir, version, args.tag), 'generate mirror done, tag:{}'.format(args.tag))# 打包OBD镜像
 os.chdir(work_dir)
